@@ -31,66 +31,6 @@ var (
 	integerOptionMinValue          = 1.0
 	dmPermission                   = false
 	defaultMemberPermissions int64 = discordgo.PermissionViewChannel
-
-	// 	commands = []*discordgo.ApplicationCommand{
-	// 		{
-	// 			Name:        "options",
-	// 			Description: "Command for demonstrating options",
-	// 			Options: []*discordgo.ApplicationCommandOption{
-	//
-	// 				{
-	// 					Type:        discordgo.ApplicationCommandOptionString,
-	// 					Name:        "string-option",
-	// 					Description: "String option",
-	// 					Required:    true,
-	// 				},
-	//
-	// 				// Required options must be listed first since optional parameters
-	// 				// always come after when they're used.
-	// 				// The same concept applies to Discord's Slash-commands API
-	//
-	// 			},
-	// 		},
-	// 	}
-	//
-	// 	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
-	// 		"options": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	// 			// Access options in the order provided by the user.
-	// 			options := i.ApplicationCommandData().Options
-	//
-	// 			// Or convert the slice into a map
-	// 			optionMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(options))
-	// 			for _, opt := range options {
-	// 				optionMap[opt.Name] = opt
-	// 			}
-	//
-	// 			// This example stores the provided arguments in an []interface{}
-	// 			// which will be used to format the bot's response
-	// 			margs := make([]interface{}, 0, len(options))
-	// 			msgformat := "You learned how to use command options! " +
-	// 				"Take a look at the value(s) you entered:\n"
-	//
-	// 			// Get the value from the option map.
-	// 			// When the option exists, ok = true
-	// 			if option, ok := optionMap["string-option"]; ok {
-	// 				// Option values must be type asserted from interface{}.
-	// 				// Discordgo provides utility functions to make this simple.
-	// 				margs = append(margs, option.StringValue())
-	// 				msgformat += "> string-option: %s\n"
-	// 			}
-	//
-	// 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-	// 				// Ignore type for now, they will be discussed in "responses"
-	// 				Type: discordgo.InteractionResponseChannelMessageWithSource,
-	// 				Data: &discordgo.InteractionResponseData{
-	// 					Content: fmt.Sprintf(
-	// 						msgformat,
-	// 						margs...,
-	// 					),
-	// 				},
-	// 			})
-	// 		},
-	// 	}
 )
 
 func init() {
