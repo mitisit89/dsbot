@@ -70,7 +70,7 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 			Data: &discordgo.InteractionResponseData{
 				Content: fmt.Sprintf(
 					"Your watchlist:\n%s",
-					watchlist,
+					toMdList(watchlist),
 				),
 			},
 		})
