@@ -3,7 +3,7 @@ package main
 import (
 	"dsbot/dsbot"
 	"flag"
-	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 
@@ -23,7 +23,7 @@ func init() {
 	var err error
 	s, err = discordgo.New("Bot " + os.Getenv("DISCORD_TOKEN"))
 	if err != nil {
-		log.Fatalf("Invalid bot parameters: %v", err)
+		slog.Error("Invalid bot parameters: %v", err)
 	}
 }
 
@@ -43,19 +43,19 @@ func init() {
 
 func main() {
 	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
-		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
+		slog.Info("Logged in as: %s#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
 	err := s.Open()
 	if err != nil {
-		log.Fatalf("Cannot open the session: %v", err)
+		slog.Error("Cannot open the session: %v", err)
 	}
 
-	log.Println("Adding commands...")
+	slog.Info("Adding commands...")
 	registeredCommands := make([]*discordgo.ApplicationCommand, len(dsbot.Commands))
 	for i, v := range dsbot.Commands {
 		cmd, err := s.ApplicationCommandCreate(s.State.User.ID, *GuildID, v)
 		if err != nil {
-			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
+			slog.Error("Cannot create '%v' command: %v", v.Name, err)
 		}
 		registeredCommands[i] = cmd
 	}
@@ -64,11 +64,11 @@ func main() {
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
-	log.Println("Press Ctrl+C to exit")
+	slog.Info("Press Ctrl+C to exit")
 	<-stop
 
 	if *RemoveCommands {
-		log.Println("Removing commands...")
+		slog.Info("Removing commands...")
 		// // We need to fetch the commands, since deleting requires the command ID.
 		// // We are doing this from the returned commands on line 375, because using
 		// // this will delete all the commands, which might not be desirable, so we
@@ -81,10 +81,10 @@ func main() {
 		for _, v := range registeredCommands {
 			err := s.ApplicationCommandDelete(s.State.User.ID, *GuildID, v.ID)
 			if err != nil {
-				log.Panicf("Cannot delete '%v' command: %v", v.Name, err)
+				slog.Error("Cannot delete '%v' command: %v", v.Name, err)
 			}
 		}
 	}
 
-	log.Println("Gracefully shutting down.")
+	slog.Info("Gracefully shutting down.")
 }
