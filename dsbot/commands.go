@@ -1,7 +1,10 @@
 package dsbot
 
 import (
+	"context"
+	storage "dsbot/dsbot/storage/sqlite"
 	"fmt"
+	"log/slog"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -47,8 +50,15 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 		}
 		// margs := make([]interface{}, 0, len(opts))
 		if option, ok := optsMap["movie"]; ok {
-			c := connect()
-			add(c, option.StringValue())
+			c, err := storage.New()
+			if err != nil {
+				slog.Error("failed to connect to database", err)
+			}
+			err = c.Add(context.TODO(), option.StringValue())
+			if err != nil {
+				slog.Error("failed to add movie", err)
+			}
+
 			// Option values must be type asserted from interface{}.
 			// Discordgo provides utility functions to make this simple.
 			msgformat += fmt.Sprintf("Added %s to watchlist", option.StringValue())
@@ -62,15 +72,21 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 
 	},
 	"show-watchlist": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		c := connect()
-		watchlist := getAll(c)
+		c, err := storage.New()
+		if err != nil {
+			slog.Error("failed to connect to database", err)
+		}
+		watchlist, err := c.GetAll(context.TODO())
+		if err != nil {
+			slog.Error("failed to get watchlist ", err)
+		}
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			// Ignore type for now, they will be discussed in "responses"
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
 				Content: fmt.Sprintf(
 					"Your watchlist:\n%s",
-					toMdList(watchlist),
+					toMdList(watchlist.Names),
 				),
 			},
 		})
@@ -84,8 +100,14 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 		}
 		margs := make([]interface{}, 0, len(opts))
 		if option, ok := optsMap["movie"]; ok {
-			c := connect()
-			remove(c, option.StringValue())
+			c, err := storage.New()
+			if err != nil {
+				slog.Error("failed to connect to database", err)
+			}
+			err = c.MarkAsWatched(context.TODO(), option.StringValue())
+			if err != nil {
+				slog.Error("failed to mark as watched", err)
+			}
 			// Option values must be type asserted from interface{}.
 			// Discordgo provides utility functions to make this simple.
 			margs = append(margs, option.StringValue())
