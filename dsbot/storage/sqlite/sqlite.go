@@ -40,11 +40,21 @@ func (s *Storage) Add(ctx context.Context, movie string) error {
 
 // GetAll get all movies
 func (s *Storage) GetAll(ctx context.Context) (*storage.Movie, error) {
-	var moviesNames []string
 	query := `SELECT name FROM watchlist WHERE watched=0`
-	if err := s.db.QueryRowContext(ctx, query).Scan(&moviesNames); err != nil {
+	rows, err := s.db.QueryContext(ctx, query)
+	if err != nil {
 		return nil, fmt.Errorf("failed to get all movies %w", err)
 	}
+	defer rows.Close()
+	var moviesNames []string
+	for rows.Next() {
+		var movie string
+		if err := rows.Scan(&movie); err != nil {
+			return nil, fmt.Errorf("failed to scan movie %w", err)
+		}
+		moviesNames = append(moviesNames, movie)
+	}
+
 	return &storage.Movie{Names: moviesNames}, nil
 }
 
