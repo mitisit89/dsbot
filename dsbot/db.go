@@ -34,7 +34,7 @@ func add(db *sqlx.DB, movie string) {
 }
 
 func remove(db *sqlx.DB, movie string) {
-	_, err := db.Exec("Select FROM watchlist WHERE movie = ?", movie)
+	_, err := db.Exec("update watchlist set watched=1 where name=?", movie)
 	if err != nil {
 		panic(err)
 	}
