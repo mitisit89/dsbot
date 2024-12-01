@@ -50,12 +50,8 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 		}
 		// margs := make([]interface{}, 0, len(opts))
 		if option, ok := optsMap["movie"]; ok {
-			c, err := storage.New()
-			if err != nil {
-				slog.Error("failed to connect to database", err)
-			}
-			err = c.Add(context.TODO(), option.StringValue())
-			if err != nil {
+			c := storage.New()
+			if err := c.Add(context.TODO(), option.StringValue()); err != nil {
 				slog.Error("failed to add movie", err)
 			}
 
@@ -72,10 +68,7 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 
 	},
 	"show-watchlist": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		c, err := storage.New()
-		if err != nil {
-			slog.Error("failed to connect to database", err)
-		}
+		c := storage.New()
 		watchlist, err := c.GetAll(context.TODO())
 		if err != nil {
 			slog.Error("failed to get watchlist ", err)
@@ -100,12 +93,9 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 		}
 		margs := make([]interface{}, 0, len(opts))
 		if option, ok := optsMap["movie"]; ok {
-			c, err := storage.New()
-			if err != nil {
-				slog.Error("failed to connect to database", err)
-			}
-			err = c.MarkAsWatched(context.TODO(), option.StringValue())
-			if err != nil {
+			c := storage.New()
+
+			if err := c.MarkAsWatched(context.TODO(), option.StringValue()); err != nil {
 				slog.Error("failed to mark as watched", err)
 			}
 			// Option values must be type asserted from interface{}.

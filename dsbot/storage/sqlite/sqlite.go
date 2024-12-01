@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"dsbot/dsbot/storage"
 	"fmt"
+	"log/slog"
 	"os"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -15,15 +16,17 @@ type Storage struct {
 }
 
 // New create new storage
-func New() (*Storage, error) {
+func New() *Storage {
 	db, err := sql.Open("sqlite3", os.Getenv("DB_PATH"))
 	if err != nil {
-		return nil, fmt.Errorf("cannot open database %w", err)
+		slog.Error("cannot open database %w", err)
+		os.Exit(1)
 	}
 	if err := db.Ping(); err != nil {
-		return nil, fmt.Errorf("failed to ping database %w", err)
+		slog.Error("failed to connect database %w", err)
+		os.Exit(1)
 	}
-	return &Storage{db: db}, nil
+	return &Storage{db: db}
 }
 
 // Add add movie to database
