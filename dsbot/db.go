@@ -9,7 +9,7 @@ import (
 )
 
 func connect() *sqlx.DB {
-	db, err := sqlx.Connect("sqlite", "watchlist.db")
+	db, err := sqlx.Connect(os.Getenv("DB_TYPE"), os.Getenv("DB_NAME"))
 	if err != nil {
 		slog.Error("failed to connect database")
 		os.Exit(1)
@@ -19,7 +19,7 @@ func connect() *sqlx.DB {
 }
 
 func getAll(db *sqlx.DB) (watchlist []string) {
-	err := db.Select(&watchlist, "SELECT * FROM watchlist")
+	err := db.Select(&watchlist, "SELECT name FROM watchlist WHERE watched=0")
 	if err != nil {
 		panic(err)
 	}
@@ -27,14 +27,14 @@ func getAll(db *sqlx.DB) (watchlist []string) {
 }
 
 func add(db *sqlx.DB, movie string) {
-	_, err := db.Exec("INSERT INTO watchlist (movie) VALUES (?)", movie)
+	_, err := db.Exec("INSERT INTO watchlist (name) VALUES (?)", movie)
 	if err != nil {
 		panic(err)
 	}
 }
 
 func remove(db *sqlx.DB, movie string) {
-	_, err := db.Exec("DELETE FROM watchlist WHERE movie = ?", movie)
+	_, err := db.Exec("Select FROM watchlist WHERE movie = ?", movie)
 	if err != nil {
 		panic(err)
 	}
