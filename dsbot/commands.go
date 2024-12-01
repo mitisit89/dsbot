@@ -38,6 +38,10 @@ var Commands = []*discordgo.ApplicationCommand{
 			},
 		},
 	},
+// {
+//         Name: "want-to-sleep",
+//         Description: "special command for streamer",
+//     }
 }
 
 var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
@@ -112,4 +116,17 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 		})
 
 	},
+    // TODO:
+	// "want-to-sleep": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+ //        s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+ //            // Ignore type for now, they will be discussed in "responses"
+ //            Type: discordgo.InteractionResponseChannelMessageWithSource,
+ //            Data: &discordgo.InteractionResponseData{
+ //                Content: "сегодня 😴",
+ //            },
+ //        })
+ //    },
+}
+
+
 }
