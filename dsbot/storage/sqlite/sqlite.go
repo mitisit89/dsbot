@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"dsbot/dsbot/storage"
 	"fmt"
-	"log/slog"
 	"os"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -19,12 +18,10 @@ type Storage struct {
 func New() *Storage {
 	db, err := sql.Open("sqlite3", os.Getenv("DB_PATH"))
 	if err != nil {
-		slog.Error("storage.New: cannot open database %w", err)
-		os.Exit(1)
+		panic(fmt.Errorf("storage.New: cannot open database %w", err))
 	}
 	if err := db.Ping(); err != nil {
-		slog.Error("storage.New: failed to connect database %w", err)
-		os.Exit(1)
+		panic(fmt.Errorf("storage.New: failed to connect database %w", err))
 	}
 	return &Storage{db: db}
 }
