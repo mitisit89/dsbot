@@ -19,11 +19,11 @@ type Storage struct {
 func New() *Storage {
 	db, err := sql.Open("sqlite3", os.Getenv("DB_PATH"))
 	if err != nil {
-		slog.Error("cannot open database %w", err)
+		slog.Error("storage.New: cannot open database %w", err)
 		os.Exit(1)
 	}
 	if err := db.Ping(); err != nil {
-		slog.Error("failed to connect database %w", err)
+		slog.Error("storage.New: failed to connect database %w", err)
 		os.Exit(1)
 	}
 	return &Storage{db: db}
@@ -33,7 +33,7 @@ func New() *Storage {
 func (s *Storage) Add(ctx context.Context, movie string) error {
 	query := `INSERT INTO watchlist (name) VALUES (?)`
 	if _, err := s.db.ExecContext(ctx, query, movie); err != nil {
-		return fmt.Errorf("failed to add movie %w", err)
+		return fmt.Errorf("storage.Add: failed to add movie %w", err)
 	}
 	return nil
 }
@@ -43,14 +43,14 @@ func (s *Storage) GetAll(ctx context.Context) (*storage.Movie, error) {
 	query := `SELECT name FROM watchlist WHERE watched=0`
 	rows, err := s.db.QueryContext(ctx, query)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get all movies %w", err)
+		return nil, fmt.Errorf("storage.GetAll: failed to get all movies %w", err)
 	}
 	defer rows.Close()
 	var moviesNames []string
 	for rows.Next() {
 		var movie string
 		if err := rows.Scan(&movie); err != nil {
-			return nil, fmt.Errorf("failed to scan movie %w", err)
+			return nil, fmt.Errorf("storage.GetAll: failed to scan movie %w", err)
 		}
 		moviesNames = append(moviesNames, movie)
 	}
@@ -62,7 +62,7 @@ func (s *Storage) GetAll(ctx context.Context) (*storage.Movie, error) {
 func (s *Storage) MarkAsWatched(ctx context.Context, movie string) error {
 	query := `update watchlist set watched=1 where name=?`
 	if _, err := s.db.ExecContext(ctx, query, movie); err != nil {
-		return fmt.Errorf("failed to remove movie %w", err)
+		return fmt.Errorf("storage.MarkAsWatched: failed to remove movie %w", err)
 	}
 	return nil
 }
