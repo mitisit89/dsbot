@@ -1,4 +1,5 @@
 FROM golang:1.23-alpine as builder
+LABEL stage=builder
 WORKDIR /app
 ENV CGO_ENABLED=1
 ENV GOOS=linux
