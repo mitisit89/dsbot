@@ -1,44 +1,43 @@
-package storage
+package pg
 
 import (
 	"context"
-	"database/sql"
 	"dsbot/dsbot/storage"
 	"fmt"
+	"log/slog"
 	"os"
 
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Storage struct {
-	db *sql.DB
+	db *pgxpool.Pool
 }
 
-// New create new storage
 func New() *Storage {
-	db, err := sql.Open("sqlite3", os.Getenv("DB_PATH"))
+	url := "postgres://" + os.Getenv("DB_USER") + ":" + os.Getenv("DB_PASSWORD") + "@" + os.Getenv("DB_HOST") + "/" + os.Getenv("DB_NAME")
+	db, err := pgxpool.New(context.Background(), url)
 	if err != nil {
-		panic(fmt.Errorf("storage.New: cannot open database %w", err))
+		slog.Error("storage.New: cannot open database %w", slog.String("error", err.Error()))
+		os.Exit(1)
 	}
-	if err := db.Ping(); err != nil {
-		panic(fmt.Errorf("storage.New: failed to connect database %w", err))
-	}
+	// defer db.Close()
 	return &Storage{db: db}
 }
 
-// Add add movie to database
 func (s *Storage) Add(ctx context.Context, movie string) error {
 	query := `INSERT INTO watchlist (name) VALUES (?)`
-	if _, err := s.db.ExecContext(ctx, query, movie); err != nil {
+	if _, err := s.db.Exec(ctx, query, movie); err != nil {
 		return fmt.Errorf("storage.Add: failed to add movie %w", err)
 	}
+	defer s.db.Close()
 	return nil
 }
 
 // GetAll get all movies
 func (s *Storage) GetAll(ctx context.Context) (*storage.Movie, error) {
 	query := `SELECT name FROM watchlist WHERE watched=0`
-	rows, err := s.db.QueryContext(ctx, query)
+	rows, err := s.db.Query(ctx, query)
 	if err != nil {
 		return nil, fmt.Errorf("storage.GetAll: failed to get all movies %w", err)
 	}
@@ -55,24 +54,11 @@ func (s *Storage) GetAll(ctx context.Context) (*storage.Movie, error) {
 	return &storage.Movie{Names: moviesNames}, nil
 }
 
-// MarkAsWatched mark movie as watched
+// // MarkAsWatched mark movie as watched
 func (s *Storage) MarkAsWatched(ctx context.Context, movie string) error {
 	query := `update watchlist set watched=1 where name=?`
-	if _, err := s.db.ExecContext(ctx, query, movie); err != nil {
+	if _, err := s.db.Exec(ctx, query, movie); err != nil {
 		return fmt.Errorf("storage.MarkAsWatched: failed to remove movie %w", err)
 	}
 	return nil
 }
-
-// func (s *Storage) Init(ctx context.Context) error {
-// 	query := `create table if not exists watchlist (
-//             id integer primary key autoincrement,
-//             name string not null unique,
-//             wattched integer default 0);`
-//
-// 	if _, err := s.db.ExecContext(ctx, query); err != nil {
-// 		return fmt.Errorf("failed to create table %w", err)
-// 	}
-// 	return nil
-//
-// }
