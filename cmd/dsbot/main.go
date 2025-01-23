@@ -17,15 +17,7 @@ var (
 	RemoveCommands = flag.Bool("rmcmd", true, "Remove all commands after shutdowning or not")
 )
 
-var s *discordgo.Session
-
-func init() {
-	var err error
-	s, err = discordgo.New("Bot " + os.Getenv("DISCORD_TOKEN"))
-	if err != nil {
-		slog.Error("Invalid bot parameters: %v", err)
-	}
-}
+var dsSession *discordgo.Session
 
 var (
 	integerOptionMinValue          = 1.0
@@ -34,7 +26,13 @@ var (
 )
 
 func init() {
-	s.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	logger := dsbot.SetUpLogger()
+	var err error
+	dsSession, err = discordgo.New("Bot " + os.Getenv("DISCORD_TOKEN"))
+	if err != nil {
+		logger.Error("Invalid bot parameters: %v", err)
+	}
+	dsSession.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		if h, ok := dsbot.CommandHandlers[i.ApplicationCommandData().Name]; ok {
 			h(s, i)
 		}
@@ -42,10 +40,10 @@ func init() {
 }
 
 func main() {
-	s.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
+	dsSession.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		slog.Info("Logged in as: %s#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
-	err := s.Open()
+	err := dsSession.Open()
 	if err != nil {
 		slog.Error("Cannot open the session: %v", err)
 	}
@@ -53,14 +51,14 @@ func main() {
 	slog.Info("Adding commands...")
 	registeredCommands := make([]*discordgo.ApplicationCommand, len(dsbot.Commands))
 	for i, v := range dsbot.Commands {
-		cmd, err := s.ApplicationCommandCreate(s.State.User.ID, *GuildID, v)
+		cmd, err := dsSession.ApplicationCommandCreate(dsSession.State.User.ID, *GuildID, v)
 		if err != nil {
 			slog.Error("Cannot create '%v' command: %v", v.Name, err)
 		}
 		registeredCommands[i] = cmd
 	}
 
-	defer s.Close()
+	defer dsSession.Close()
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
@@ -79,7 +77,7 @@ func main() {
 		// }
 
 		for _, v := range registeredCommands {
-			err := s.ApplicationCommandDelete(s.State.User.ID, *GuildID, v.ID)
+			err := dsSession.ApplicationCommandDelete(dsSession.State.User.ID, *GuildID, v.ID)
 			if err != nil {
 				slog.Error("Cannot delete '%v' command: %v", v.Name, err)
 			}
