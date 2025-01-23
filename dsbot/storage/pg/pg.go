@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -26,8 +27,8 @@ func New() *Storage {
 }
 
 func (s *Storage) Add(ctx context.Context, movie string) error {
-	query := `INSERT INTO watchlist (name) VALUES (?)`
-	if _, err := s.db.Exec(ctx, query, movie); err != nil {
+	query := `INSERT INTO movies (name) VALUES (@movie)`
+	if _, err := s.db.Exec(ctx, query, pgx.NamedArgs{"movie": movie}); err != nil {
 		return fmt.Errorf("storage.Add: failed to add movie %w", err)
 	}
 	defer s.db.Close()
@@ -36,7 +37,7 @@ func (s *Storage) Add(ctx context.Context, movie string) error {
 
 // GetAll get all movies
 func (s *Storage) GetAll(ctx context.Context) (*storage.Movie, error) {
-	query := `SELECT name FROM watchlist WHERE watched=0`
+	query := `SELECT name FROM movies WHERE watched=false`
 	rows, err := s.db.Query(ctx, query)
 	if err != nil {
 		return nil, fmt.Errorf("storage.GetAll: failed to get all movies %w", err)
@@ -56,8 +57,8 @@ func (s *Storage) GetAll(ctx context.Context) (*storage.Movie, error) {
 
 // // MarkAsWatched mark movie as watched
 func (s *Storage) MarkAsWatched(ctx context.Context, movie string) error {
-	query := `update watchlist set watched=1 where name=?`
-	if _, err := s.db.Exec(ctx, query, movie); err != nil {
+	query := `update movies set watched=true where name=@movie`
+	if _, err := s.db.Exec(ctx, query, pgx.NamedArgs{"movie": movie}); err != nil {
 		return fmt.Errorf("storage.MarkAsWatched: failed to remove movie %w", err)
 	}
 	return nil
