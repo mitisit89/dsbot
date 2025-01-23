@@ -1,3 +1,4 @@
 .git
 .env.example
 .md
+.csv
