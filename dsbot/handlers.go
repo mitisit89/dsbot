@@ -17,17 +17,28 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 		for _, opt := range opts {
 			optsMap[opt.Name] = opt
 		}
-		// margs := make([]interface{}, 0, len(opts))
-		if option, ok := optsMap["movie"]; ok {
-			c := storage.New()
-			if err := c.Add(context.Background(), option.StringValue(), i.Member.User.Username, option.StringValue()); err != nil {
+		fmt.Println(len(optsMap))
+		// if option, ok := optsMap["movie"]; ok {
+		// 	c := storage.New()
+		//
+		// Option values must be type asserted from interface{}.
+		// Discordgo provides utility functions to make this simple.
+		args := make([]string, 0, len(optsMap))
+		if len(args) > 1 {
+			args = append(args, optsMap["movie"].StringValue(), optsMap["trailer"].StringValue())
+			s := storage.New()
+			if err := s.Add(context.Background(), i.Member.User.Username, args); err != nil {
 				slog.Error("failed to add movie", err)
 			}
-
-			// Option values must be type asserted from interface{}.
-			// Discordgo provides utility functions to make this simple.
-			msgformat += fmt.Sprintf("Added %s to watchlist", option.StringValue())
+		} else {
+			args = append(args, optsMap["movie"].StringValue())
+			s := storage.New()
+			if err := s.Add(context.Background(), i.Member.User.Username, args); err != nil {
+				slog.Error("failed to add movie", err)
+			}
 		}
+
+		msgformat += fmt.Sprintf("Added %s to watchlist", optsMap["movie"].StringValue())
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			// Ignore type for now, they will be discussed in "responses"
 			Type: discordgo.InteractionResponseChannelMessageWithSource,

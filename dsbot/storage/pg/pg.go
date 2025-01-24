@@ -39,7 +39,12 @@ func (s *Storage) AddUser(ctx context.Context, dsUser string) error {
 	}
 	return nil
 }
-func (s *Storage) Add(ctx context.Context, movie string, dsUser string, trailer string) error {
+func (s *Storage) Add(ctx context.Context, dsUser string, args []string) error {
+	movie := args[0]
+	trailer := ""
+	if len(args) > 1 {
+		trailer = args[1]
+	}
 	if err := s.AddUser(ctx, dsUser); err != nil {
 		return err
 	}
