@@ -1,12 +1,23 @@
-create table if not exists discord_user (id serial primary key, name varchar(255) not null);
 
-create table if not exists games (id serial primary key, name varchar(255) not null);
+CREATE table if not exists discord_user (
+    id serial PRIMARY KEY,
+    name VARCHAR(100) NOT NULL
+);
 
-create table if not exists movies (
-    id serial primary key,
-    name varchar(255) not null,
-    traller varchar(512) default null,
-    watched bool default false not null
+CREATE TABLE  if not exists movies (
+    id serial PRIMARY KEY,
+    name VARCHAR(200) NOT NULL,
+    trailer VARCHAR(500),
+    watched BOOLEAN DEFAULT FALSE,
+    discord_user_id INT,
+    CONSTRAINT fk_movies_user FOREIGN KEY (discord_user_id) REFERENCES discord_user (id) ON DELETE SET NULL
+);
+
+CREATE table if not exists games (
+    id serial PRIMARY KEY,
+    name VARCHAR(200) NOT NULL,
+    discord_user_id INT,
+    CONSTRAINT fk_games_user FOREIGN KEY (discord_user_id) REFERENCES discord_user (id) ON DELETE SET NULL
 );
 
 create table if not exists movie_rating (
@@ -34,6 +45,4 @@ create table if not exists games_rating (
     foreign key (game_id) references games (id) on delete cascade
 );
 
-create index movie_name_idx on movies (name);
 
-create index game_name_idx on games (name);

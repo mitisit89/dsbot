@@ -20,7 +20,7 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 		// margs := make([]interface{}, 0, len(opts))
 		if option, ok := optsMap["movie"]; ok {
 			c := storage.New()
-			if err := c.Add(context.TODO(), option.StringValue()); err != nil {
+			if err := c.Add(context.Background(), option.StringValue(), i.Member.User.Username, option.StringValue()); err != nil {
 				slog.Error("failed to add movie", err)
 			}
 
@@ -38,7 +38,7 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 	},
 	"show-watchlist": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		c := storage.New()
-		watchlist, err := c.GetAll(context.TODO())
+		watchlist, err := c.GetAll(context.Background())
 		if err != nil {
 			slog.Error("failed to get watchlist ", err)
 		}
@@ -81,16 +81,23 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 		})
 
 	},
-	// TODO:
-	// "want-to-sleep": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	//        s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-	//            // Ignore type for now, they will be discussed in "responses"
-	//            Type: discordgo.InteractionResponseChannelMessageWithSource,
-	//            Data: &discordgo.InteractionResponseData{
-	//                Content: "сегодня 😴",
-	//            },
-	//        })
-	//    },
-	// }
-
+	"test-embed": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			// Ignore type for now, they will be discussed in "responses"
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Embeds: []*discordgo.MessageEmbed{
+					{
+						Title: "Test Embed",
+						Fields: []*discordgo.MessageEmbedField{
+							{
+								Name:   "Test Field",
+								Inline: true,
+							},
+						},
+					},
+				},
+			},
+		})
+	},
 }

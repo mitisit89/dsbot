@@ -25,11 +25,35 @@ func New() *Storage {
 	// defer db.Close()
 	return &Storage{db: db}
 }
+func (s *Storage) AddUser(ctx context.Context, dsUser string) error {
 
-func (s *Storage) Add(ctx context.Context, movie string) error {
-	query := `INSERT INTO movies (name) VALUES (@movie)`
-	if _, err := s.db.Exec(ctx, query, pgx.NamedArgs{"movie": movie}); err != nil {
-		return fmt.Errorf("storage.Add: failed to add movie %w", err)
+	q := `
+    INSERT INTO discord_user (name)
+    SELECT $1
+    WHERE NOT EXISTS (
+        SELECT 1 FROM discord_user WHERE name = $2
+    );
+    `
+	if _, err := s.db.Exec(ctx, q, dsUser, dsUser); err != nil {
+		return fmt.Errorf("storage.Add: failed to add user%w", err)
+	}
+	defer s.db.Close()
+	return nil
+}
+func (s *Storage) Add(ctx context.Context, movie string, dsUser string, trailer string) error {
+	if err := s.AddUser(ctx, dsUser); err != nil {
+		return err
+	}
+	q := `INSERT INTO movies (name, trailer, discord_user_id)
+    VALUES (
+        @movie,
+        @trailer,
+        (SELECT id FROM discord_user WHERE name = @dsUser)
+    );
+    `
+
+	if _, err := s.db.Exec(ctx, q, pgx.NamedArgs{"movie": movie, "trailer": trailer, "dsUser": dsUser}); err != nil {
+		return fmt.Errorf("storage.Add: failed to add movie%w", err)
 	}
 	defer s.db.Close()
 	return nil
@@ -37,6 +61,17 @@ func (s *Storage) Add(ctx context.Context, movie string) error {
 
 // GetAll get all movies
 func (s *Storage) GetAll(ctx context.Context) (*storage.Movie, error) {
+	// TODO: update struct
+	// 	query := `SELECT
+	//     discord_user.name AS user_name,
+	//     movies.name AS movie_name
+	// FROM
+	//     movies
+	// left join
+	//     discord_user ON movies.discord_user_id = discord_user.id
+	// WHERE
+	//     movies.watched = FALSE;`
+
 	query := `SELECT name FROM movies WHERE watched=false`
 	rows, err := s.db.Query(ctx, query)
 	if err != nil {
@@ -46,6 +81,7 @@ func (s *Storage) GetAll(ctx context.Context) (*storage.Movie, error) {
 	var moviesNames []string
 	for rows.Next() {
 		var movie string
+		// var user string
 		if err := rows.Scan(&movie); err != nil {
 			return nil, fmt.Errorf("storage.GetAll: failed to scan movie %w", err)
 		}

@@ -15,6 +15,12 @@ var Commands = []*discordgo.ApplicationCommand{
 				Description: "Name of the anime or film",
 				Required:    true,
 			},
+			{
+				Type:        discordgo.ApplicationCommandOptionString,
+				Name:        "trailer", // only in lover case
+				Description: "Link to trailer",
+				Required:    false,
+			},
 		},
 	},
 	{
@@ -33,6 +39,8 @@ var Commands = []*discordgo.ApplicationCommand{
 			},
 		},
 	},
+	{Name: "test-embed", Description: "test embed"},
+
 	//	{
 	//	        Name: "want-to-sleep",
 	//	        Description: "special command for streamer",
