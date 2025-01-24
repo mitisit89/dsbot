@@ -19,7 +19,7 @@ CREATE table if not exists games (
     discord_user_id INT,
     CONSTRAINT fk_games_user FOREIGN KEY (discord_user_id) REFERENCES discord_user (id) ON DELETE SET NULL
 );
-
+-- TODO:unite ratings TABLE
 create table if not exists movie_rating (
     id serial primary key,
     rating smallint check (
