@@ -37,7 +37,6 @@ func (s *Storage) AddUser(ctx context.Context, dsUser string) error {
 	if _, err := s.db.Exec(ctx, q, dsUser, dsUser); err != nil {
 		return fmt.Errorf("storage.Add: failed to add user%w", err)
 	}
-	defer s.db.Close()
 	return nil
 }
 func (s *Storage) Add(ctx context.Context, movie string, dsUser string, trailer string) error {
@@ -53,7 +52,7 @@ func (s *Storage) Add(ctx context.Context, movie string, dsUser string, trailer 
     `
 
 	if _, err := s.db.Exec(ctx, q, pgx.NamedArgs{"movie": movie, "trailer": trailer, "dsUser": dsUser}); err != nil {
-		return fmt.Errorf("storage.Add: failed to add movie%w", err)
+		return fmt.Errorf("storage.Add: failed to add movie %w", err)
 	}
 	defer s.db.Close()
 	return nil
