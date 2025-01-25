@@ -17,12 +17,6 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 		for _, opt := range opts {
 			optsMap[opt.Name] = opt
 		}
-		fmt.Println(len(optsMap))
-		// if option, ok := optsMap["movie"]; ok {
-		// 	c := storage.New()
-		//
-		// Option values must be type asserted from interface{}.
-		// Discordgo provides utility functions to make this simple.
 		args := make([]string, 0, len(optsMap))
 		if len(args) > 1 {
 			args = append(args, optsMap["movie"].StringValue(), optsMap["trailer"].StringValue())
@@ -57,11 +51,7 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 			// Ignore type for now, they will be discussed in "responses"
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
-				Content: fmt.Sprintf(
-					"Your watchlist:\n%s",
-					toMdList(watchlist.Names),
-				),
-			},
+				Embeds: []*discordgo.MessageEmbed{GenerateEmbed(watchlist.Names, "Watchlist")}},
 		})
 	},
 	"watched": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -103,7 +93,7 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 			// Ignore type for now, they will be discussed in "responses"
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
-				Embeds: []*discordgo.MessageEmbed{GenerateEmbed(gameList.Names)},
+				Embeds: []*discordgo.MessageEmbed{GenerateEmbed(gameList.Names, "Game List")},
 			},
 		})
 	},

@@ -1,13 +1,23 @@
 package dsbot
 
-import "strings"
+import (
+	"fmt"
 
-func toMdList(list []string) string {
-	var sb strings.Builder
-	for _, item := range list {
-		sb.WriteString("- ")
-		sb.WriteString(item)
-		sb.WriteString("\n")
+	"github.com/bwmarrin/discordgo"
+)
+
+func GenerateEmbed(list []string, title string) *discordgo.MessageEmbed {
+	fields := make([]*discordgo.MessageEmbedField, len(list))
+	for i, item := range list {
+		fields[i] = &discordgo.MessageEmbedField{
+			Value:  fmt.Sprintf("* **%s**", item),
+			Inline: false,
+		}
 	}
-	return sb.String()
+
+	return &discordgo.MessageEmbed{
+		Title:  title,
+		Fields: fields,
+	}
+
 }

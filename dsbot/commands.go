@@ -39,7 +39,17 @@ var Commands = []*discordgo.ApplicationCommand{
 			},
 		},
 	},
-	{Name: "test-embed", Description: "test embed"},
+	{Name: "game-list", Description: "List of games"},
+	{Name: "add-to-game-list", Description: "Add game to list",
+		Options: []*discordgo.ApplicationCommandOption{
+			{
+				Type:        discordgo.ApplicationCommandOptionString,
+				Name:        "game",
+				Description: "Name of the game",
+				Required:    true,
+			},
+		}},
+	// {Name: "test-embed", Description: "test embed"},
 
 	//	{
 	//	        Name: "want-to-sleep",
