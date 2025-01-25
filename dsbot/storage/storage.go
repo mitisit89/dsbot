@@ -5,6 +5,9 @@ import "context"
 type Movie struct {
 	Names []string
 }
+type Games struct {
+	Names []string
+}
 
 type Storage interface {
 	Add(ctx context.Context, m string) error

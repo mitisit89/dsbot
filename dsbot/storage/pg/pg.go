@@ -85,7 +85,6 @@ func (s *Storage) GetAll(ctx context.Context) (*storage.Movie, error) {
 	var moviesNames []string
 	for rows.Next() {
 		var movie string
-		// var user string
 		if err := rows.Scan(&movie); err != nil {
 			return nil, fmt.Errorf("storage.GetAll: failed to scan movie %w", err)
 		}
@@ -93,6 +92,42 @@ func (s *Storage) GetAll(ctx context.Context) (*storage.Movie, error) {
 	}
 
 	return &storage.Movie{Names: moviesNames}, nil
+}
+func (s *Storage) AddGame(ctx context.Context, dsUser string, game string) error {
+	if err := s.AddUser(ctx, dsUser); err != nil {
+		return err
+	}
+	q := `INSERT INTO games (name, discord_user_id)
+    VALUES (
+        @game,
+        (SELECT id FROM discord_user WHERE name = @dsUser)
+    );
+    `
+	if _, err := s.db.Exec(ctx, q, pgx.NamedArgs{"game": game, "dsUser": dsUser}); err != nil {
+		return fmt.Errorf("storage.Add: failed to add movie %w", err)
+	}
+	defer s.db.Close()
+	return nil
+
+}
+func (s *Storage) GameList(ctx context.Context) (*storage.Games, error) {
+
+	query := `SELECT name FROM games`
+	rows, err := s.db.Query(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("storage.GetAll: failed to get all games %w", err)
+	}
+	defer rows.Close()
+	var gameNames []string
+	for rows.Next() {
+		var game string
+		if err := rows.Scan(&game); err != nil {
+			return nil, fmt.Errorf("storage.GetAll: failed to scan movie %w", err)
+		}
+		gameNames = append(gameNames, game)
+	}
+
+	return &storage.Games{Names: gameNames}, nil
 }
 
 // // MarkAsWatched mark movie as watched
