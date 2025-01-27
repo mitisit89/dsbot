@@ -31,7 +31,7 @@ func (s *Storage) AddUser(ctx context.Context, dsUser string) error {
     INSERT INTO discord_user (name)
     SELECT $1
     WHERE NOT EXISTS (
-        SELECT 1 FROM discord_user WHERE name = $2
+        SELECT 1 FROM discord_user du WHERE du.name = $2
     );
     `
 	if _, err := s.db.Exec(ctx, q, dsUser, dsUser); err != nil {
@@ -52,7 +52,7 @@ func (s *Storage) Add(ctx context.Context, dsUser string, args []string) error {
     VALUES (
         @movie,
         @trailer,
-        (SELECT id FROM discord_user WHERE name = @dsUser)
+        (SELECT id FROM discord_user du WHERE du.name = @dsUser)
     );
     `
 
