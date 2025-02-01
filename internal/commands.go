@@ -1,4 +1,4 @@
-package dsbot
+package internal
 
 import (
 	"github.com/bwmarrin/discordgo"

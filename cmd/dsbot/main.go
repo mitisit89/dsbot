@@ -1,7 +1,7 @@
 package main
 
 import (
-	"dsbot/dsbot"
+	dsbot "dsbot/internal"
 	"flag"
 	"log/slog"
 	"os"
