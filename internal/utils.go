@@ -7,6 +7,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
+// TODO:create generic function for gen embed message
 func GenerateEmbed(movies []storage.Movie, title string) *discordgo.MessageEmbed {
 	fields := make([]*discordgo.MessageEmbedField, len(movies))
 	for i, item := range movies {
