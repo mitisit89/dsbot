@@ -45,10 +45,11 @@ func (q *Queries) Add(ctx context.Context, dsUser string, args []string) error {
 }
 
 // GetAll get all movies
-func (q *Queries) GetAll(ctx context.Context) (*MovieList, error) {
+func (q *Queries) GetAll(ctx context.Context) ([]Movie, error) {
 	getAll := `SELECT
 	    discord_user.name AS user_name,
-	    movies.name AS movie_name
+	    movies.name AS movie_name,
+        movies.trailer
 	FROM
 	    movies
 	left join
@@ -61,16 +62,12 @@ func (q *Queries) GetAll(ctx context.Context) (*MovieList, error) {
 		return nil, fmt.Errorf("storage.GetAll: failed to get all movies %w", err)
 	}
 	defer rows.Close()
-	var moviesNames []Movie
-	for rows.Next() {
-		var movie Movie
-		if err := rows.Scan(&movie); err != nil {
-			return nil, fmt.Errorf("storage.GetAll: failed to scan movie %w", err)
-		}
-		moviesNames = append(moviesNames, movie)
+	movies, err := pgx.CollectRows(rows, pgx.RowToStructByName[Movie])
+	if err != nil {
+		return nil, fmt.Errorf("storage.GetAll: failed to collect rows %w", err)
 	}
 
-	return &MovieList{List: moviesNames}, nil
+	return movies, nil
 }
 func (q *Queries) AddGame(ctx context.Context, dsUser string, game string) error {
 	if err := q.AddUser(ctx, dsUser); err != nil {
