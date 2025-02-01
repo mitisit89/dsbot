@@ -15,11 +15,9 @@ import (
 var (
 	GuildID        = flag.String("guild", "", "Test guild ID. If not passed - bot registers commands globally")
 	RemoveCommands = flag.Bool("rmcmd", true, "Remove all commands after shutdowning or not")
-)
 
-var dsSession *discordgo.Session
+	dsSession *discordgo.Session
 
-var (
 	integerOptionMinValue          = 1.0
 	dmPermission                   = false
 	defaultMemberPermissions int64 = discordgo.PermissionViewChannel
@@ -40,15 +38,16 @@ func init() {
 }
 
 func main() {
+	logger := dsbot.SetUpLogger()
 	dsSession.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		slog.Info("Logged in as: %s#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
 	err := dsSession.Open()
 	if err != nil {
-		slog.Error("Cannot open the session: %v", err)
+		logger.Error("Cannot open the session: %v", err)
 	}
 
-	slog.Info("Adding commands...")
+	logger.Info("Adding commands...")
 	registeredCommands := make([]*discordgo.ApplicationCommand, len(dsbot.Commands))
 	for i, v := range dsbot.Commands {
 		cmd, err := dsSession.ApplicationCommandCreate(dsSession.State.User.ID, *GuildID, v)
@@ -62,11 +61,11 @@ func main() {
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
-	slog.Info("Press Ctrl+C to exit")
+	logger.Info("Press Ctrl+C to exit")
 	<-stop
 
 	if *RemoveCommands {
-		slog.Info("Removing commands...")
+		logger.Info("Removing commands...")
 		// // We need to fetch the commands, since deleting requires the command ID.
 		// // We are doing this from the returned commands on line 375, because using
 		// // this will delete all the commands, which might not be desirable, so we
@@ -79,10 +78,10 @@ func main() {
 		for _, v := range registeredCommands {
 			err := dsSession.ApplicationCommandDelete(dsSession.State.User.ID, *GuildID, v.ID)
 			if err != nil {
-				slog.Error("Cannot delete '%v' command: %v", v.Name, err)
+				logger.Error("Cannot delete '%v' command: %v", v.Name, err)
 			}
 		}
 	}
 
-	slog.Info("Gracefully shutting down.")
+	logger.Info("Gracefully shutting down.")
 }
