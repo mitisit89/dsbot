@@ -5,7 +5,7 @@ import (
 )
 
 type Movie struct {
-	Name        string         `db:"name"`
+	Name        string         `db:"movie_name"`
 	Trailer     sql.NullString `db:"trailer"`
 	DiscordUser sql.NullString `db:"user_name"`
 }
@@ -13,9 +13,6 @@ type Game struct {
 	Name string
 }
 
-type MovieList struct {
-	List []Movie
-}
 type GameList struct {
 	List []Game
 }
