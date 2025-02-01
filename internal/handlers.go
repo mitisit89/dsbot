@@ -2,7 +2,7 @@ package internal
 
 import (
 	"context"
-	storage "dsbot/dsbot/storage/pg"
+	"dsbot/internal/storage"
 	"fmt"
 	"log/slog"
 
@@ -18,20 +18,10 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 			optsMap[opt.Name] = opt
 		}
 		args := make([]string, 0, len(optsMap))
-		if len(args) > 1 {
-			args = append(args, optsMap["movie"].StringValue(), optsMap["trailer"].StringValue())
-			s := storage.New()
-			if err := s.Add(context.Background(), i.Member.User.Username, args); err != nil {
-				slog.Error("failed to add movie", err)
-			}
-		} else {
-			args = append(args, optsMap["movie"].StringValue())
-			s := storage.New()
-			if err := s.Add(context.Background(), i.Member.User.Username, args); err != nil {
-				slog.Error("failed to add movie", err)
-			}
+		args = append(args, optsMap["movie"].StringValue(), "trailer")
+		if err := storage.New().Add(context.Background(), i.Member.User.Username, args); err != nil {
+			slog.Error("failed to add movie", err)
 		}
-
 		msgformat += fmt.Sprintf("Added %s to watchlist", optsMap["movie"].StringValue())
 		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			// Ignore type for now, they will be discussed in "responses"
@@ -43,7 +33,7 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 	},
 	"show-watchlist": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		c := storage.New()
-		watchlist, err := c.GetAll(context.Background())
+		movies, err := c.GetAll(context.Background())
 		if err != nil {
 			slog.Error("failed to get watchlist ", err)
 		}
@@ -51,7 +41,7 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 			// Ignore type for now, they will be discussed in "responses"
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
-				Embeds: []*discordgo.MessageEmbed{GenerateEmbed(watchlist.Names, "Watchlist")}},
+				Embeds: []*discordgo.MessageEmbed{GenerateEmbed(movies, "Watchlist")}},
 		})
 	},
 	"watched": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -82,21 +72,21 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 		})
 
 	},
-	"game-list": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-
-		c := storage.New()
-		gameList, err := c.GameList(context.Background())
-		if err != nil {
-			slog.Error("failed to get game list ", err)
-		}
-		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			// Ignore type for now, they will be discussed in "responses"
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionResponseData{
-				Embeds: []*discordgo.MessageEmbed{GenerateEmbed(gameList.Names, "Game List")},
-			},
-		})
-	},
+	// "game-list": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	//
+	// 	c := storage.New()
+	// 	gameList, err := c.GameList(context.Background())
+	// 	if err != nil {
+	// 		slog.Error("failed to get game list ", err)
+	// 	}
+	// 	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+	// 		// Ignore type for now, they will be discussed in "responses"
+	// 		Type: discordgo.InteractionResponseChannelMessageWithSource,
+	// 		Data: &discordgo.InteractionResponseData{
+	// 			Embeds: []*discordgo.MessageEmbed{GenerateEmbed(gameList.Names, "Game List")},
+	// 		},
+	// 	})
+	// },
 	"add-to-game-list": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		var msgformat string
 		opts := i.ApplicationCommandData().Options

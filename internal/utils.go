@@ -1,16 +1,17 @@
 package internal
 
 import (
+	"dsbot/internal/storage"
 	"fmt"
 
 	"github.com/bwmarrin/discordgo"
 )
 
-func GenerateEmbed(list []string, title string) *discordgo.MessageEmbed {
-	fields := make([]*discordgo.MessageEmbedField, len(list))
-	for i, item := range list {
+func GenerateEmbed(movies []storage.Movie, title string) *discordgo.MessageEmbed {
+	fields := make([]*discordgo.MessageEmbedField, len(movies))
+	for i, item := range movies {
 		fields[i] = &discordgo.MessageEmbedField{
-			Value:  fmt.Sprintf("* **%s**", item),
+			Value:  fmt.Sprintf("* **%s**", item.Name),
 			Inline: false,
 		}
 	}
