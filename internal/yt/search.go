@@ -21,7 +21,7 @@ type YtResponse struct {
 	} `json:"items"`
 }
 
-func FilmTrailersSearch(film string) (*YtResponse, error) {
+func SearchFilmTrailer(film string) (*YtResponse, error) {
 	var ytResponse YtResponse
 	query := url.Values{}
 	query.Set("part", "snippet")
