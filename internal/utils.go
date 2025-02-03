@@ -13,7 +13,7 @@ func GenerateEmbed(movies []storage.Movie, title string) *discordgo.MessageEmbed
 	for i, item := range movies {
 		if item.DiscordUser.Valid && item.Trailer.Valid {
 			fields[i] = &discordgo.MessageEmbedField{
-				Value:  fmt.Sprintf("**%s**\n> [Trailer](%s)\n> Ordered by %s", item.Name, item.Trailer.String, item.DiscordUser.String),
+				Value:  fmt.Sprintf("**%s**\n> [Trailer](%s)\n> Ordered by: **%s**", item.Name, item.Trailer.String, item.DiscordUser.String),
 				Inline: false,
 			}
 		} else {
