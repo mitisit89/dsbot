@@ -51,12 +51,14 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 		if err != nil {
 			slog.Error("failed to get watchlist ", err)
 		}
-		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			// Ignore type for now, they will be discussed in "responses"
+		err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
 				Embeds: []*discordgo.MessageEmbed{GenerateEmbed(movies, "Watchlist")}},
 		})
+		if err != nil {
+			slog.Error("failed to respond", err)
+		}
 	},
 	"watched": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		var msgformat string
