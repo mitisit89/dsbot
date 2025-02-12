@@ -2,6 +2,7 @@ package main
 
 import (
 	dsbot "dsbot/internal"
+	"dsbot/internal/activities"
 	"flag"
 	"log/slog"
 	"os"
@@ -30,11 +31,14 @@ func init() {
 	if err != nil {
 		logger.Error("Invalid bot parameters: %v", err)
 	}
+	dsSession.Identify.Intents = discordgo.IntentsGuildPresences
 	dsSession.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		if h, ok := dsbot.CommandHandlers[i.ApplicationCommandData().Name]; ok {
 			h(s, i)
 		}
 	})
+
+	dsSession.AddHandler(activities.OnStream)
 }
 
 func main() {
