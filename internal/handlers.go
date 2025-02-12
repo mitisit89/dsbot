@@ -52,6 +52,7 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 			slog.Error("failed to get watchlist ", err)
 		}
 		err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			// Ignore type for now, they will be discussed in "responses"
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
 				Embeds: []*discordgo.MessageEmbed{GenerateEmbed(movies, "Watchlist")}},
