@@ -2,8 +2,8 @@ package internal
 
 import (
 	"context"
+	"dsbot/internal/commands"
 	"dsbot/internal/storage"
-	"dsbot/internal/yt"
 	"fmt"
 	"log/slog"
 
@@ -11,84 +11,9 @@ import (
 )
 
 var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
-	"add-to-watchlist": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		var msgformat string
-		opts := i.ApplicationCommandData().Options
-		optsMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(opts))
-		for _, opt := range opts {
-			optsMap[opt.Name] = opt
-		}
-		args := make([]string, 0, len(optsMap))
-		trailer, err := yt.SearchFilmTrailer(optsMap["movie"].StringValue())
-		if err != nil {
-			slog.Error("failed to get trailer", err)
-			msgformat += fmt.Sprintf("Failed to get trailer for %s", optsMap["movie"].StringValue())
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				// Ignore type for now, they will be discussed in "responses"
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionResponseData{
-					Content: msgformat},
-			})
-			return
-		}
-		args = append(args, optsMap["movie"].StringValue(), "https://www.youtube.com/watch?v="+trailer.Items[0].ID.VideoID)
-		if err := storage.New().Add(context.Background(), i.Member.User.Username, args); err != nil {
-			slog.Error("failed to add movie", err)
-		}
-		msgformat += fmt.Sprintf("Added %s to watchlist", optsMap["movie"].StringValue())
-		slog.Info(msgformat)
-		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			// Ignore type for now, they will be discussed in "responses"
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionResponseData{
-				Content: msgformat},
-		})
-
-	},
-	"show-watchlist": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		c := storage.New()
-		movies, err := c.GetAll(context.Background())
-		if err != nil {
-			slog.Error("failed to get watchlist ", err)
-		}
-		err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			// Ignore type for now, they will be discussed in "responses"
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionResponseData{
-				Embeds: []*discordgo.MessageEmbed{GenerateEmbed(movies, "Watchlist")}},
-		})
-		if err != nil {
-			slog.Error("failed to respond", err)
-		}
-	},
-	"watched": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-		var msgformat string
-		opts := i.ApplicationCommandData().Options
-		optsMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(opts))
-		for _, opt := range opts {
-			optsMap[opt.Name] = opt
-		}
-		margs := make([]interface{}, 0, len(opts))
-		if option, ok := optsMap["movie"]; ok {
-			c := storage.New()
-
-			if err := c.MarkAsWatched(context.TODO(), option.StringValue()); err != nil {
-				slog.Error("failed to mark as watched", err)
-			}
-			// Option values must be type asserted from interface{}.
-			// Discordgo provides utility functions to make this simple.
-			margs = append(margs, option.StringValue())
-			msgformat = fmt.Sprintf("> You mark as watched: %s\n", option.StringValue())
-		}
-		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			// Ignore type for now, they will be discussed in "responses"
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionResponseData{
-				Content: msgformat,
-			},
-		})
-
-	},
+	"add-to-watchlist": commands.AddToWathclist,
+	"show-watchlist":   commands.ShowWatchlist,
+	"watched":          commands.Watched,
 	// "game-list": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	//
 	// 	c := storage.New()

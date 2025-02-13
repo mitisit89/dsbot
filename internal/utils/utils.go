@@ -1,4 +1,4 @@
-package internal
+package utils
 
 import (
 	"dsbot/internal/storage"
@@ -23,7 +23,6 @@ func GenerateEmbed(movies []storage.Movie, title string) *discordgo.MessageEmbed
 			}
 		}
 	}
-
 	return &discordgo.MessageEmbed{
 		Title:  title,
 		Fields: fields,

@@ -55,7 +55,7 @@ func (q *Queries) GetAll(ctx context.Context) ([]Movie, error) {
 	left join
 	    discord_user ON movies.discord_user_id = discord_user.id
 	WHERE
-	    movies.watched = FALSE order by movies.id;`
+    movies.watched = FALSE order by movies.id limit 25;` //TODO: figure out pagination
 
 	rows, err := q.db.Query(ctx, getAll)
 	if err != nil {
