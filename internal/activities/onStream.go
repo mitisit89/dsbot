@@ -20,7 +20,6 @@ func OnStream(s *discordgo.Session, p *discordgo.PresenceUpdate) {
 	if p.User.ID != trackedUser {
 		return
 	}
-	fmt.Println("Stream started")
 	mu.Lock()
 	defer mu.Unlock()
 
