@@ -16,7 +16,7 @@ func Watched(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	for _, opt := range opts {
 		optsMap[opt.Name] = opt
 	}
-	margs := make([]interface{}, 0, len(opts))
+	// margs := make([]interface{}, 0, len(opts))
 	if option, ok := optsMap["movie"]; ok {
 		c := storage.New()
 
@@ -25,15 +25,18 @@ func Watched(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		}
 		// Option values must be type asserted from interface{}.
 		// Discordgo provides utility functions to make this simple.
-		margs = append(margs, option.StringValue())
+		// margs = append(margs, option.StringValue())
 		msgformat = fmt.Sprintf("> You mark as watched: %s\n", option.StringValue())
+
+		err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Content: msgformat,
+			},
+		})
+		if err != nil {
+			slog.Error("failed to respond", err)
+		}
 	}
-	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		// Ignore type for now, they will be discussed in "responses"
-		Type: discordgo.InteractionResponseChannelMessageWithSource,
-		Data: &discordgo.InteractionResponseData{
-			Content: msgformat,
-		},
-	})
 
 }

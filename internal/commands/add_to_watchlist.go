@@ -22,12 +22,15 @@ func AddToWathclist(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	if err != nil {
 		slog.Error("failed to get trailer", err)
 		msgformat += fmt.Sprintf("Failed to get trailer for %s", optsMap["movie"].StringValue())
-		s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			// Ignore type for now, they will be discussed in "responses"
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
 				Content: msgformat},
 		})
+		if err != nil {
+			slog.Error("failed to respond", err)
+		}
 		return
 	}
 	args = append(args, optsMap["movie"].StringValue(), "https://www.youtube.com/watch?v="+trailer.Items[0].ID.VideoID)
@@ -36,11 +39,14 @@ func AddToWathclist(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	}
 	msgformat += fmt.Sprintf("Added %s to watchlist", optsMap["movie"].StringValue())
 	slog.Info(msgformat)
-	s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+	err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		// Ignore type for now, they will be discussed in "responses"
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
 			Content: msgformat},
 	})
+	if err != nil {
+		slog.Error("failed to respond", err)
+	}
 
 }
