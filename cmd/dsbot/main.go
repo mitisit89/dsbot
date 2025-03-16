@@ -32,9 +32,10 @@ func init() {
 		logger.Error("Invalid bot parameters: %v", err)
 	}
 	dsSession.Identify.Intents = discordgo.IntentsGuildPresences
+	dsSession.State.MaxMessageCount = 0 // disable message cache
 	dsSession.AddHandler(func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		if h, ok := dsbot.CommandHandlers[i.ApplicationCommandData().Name]; ok {
-			h(s, i)
+			go h(s, i)
 		}
 	})
 
@@ -44,11 +45,12 @@ func init() {
 func main() {
 	logger := dsbot.SetUpLogger()
 	dsSession.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
-		slog.Info("Logged in as: %s#%v", s.State.User.Username, s.State.User.Discriminator)
+		logger.Info("Logged in as: %s#%v", s.State.User.Username, s.State.User.Discriminator)
 	})
 	err := dsSession.Open()
 	if err != nil {
 		logger.Error("Cannot open the session: %v", err)
+		return
 	}
 
 	logger.Info("Adding commands...")
