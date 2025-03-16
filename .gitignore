@@ -1,3 +1,6 @@
 .env
 *.db
 *.yml
+.zed/
+.idea/
+.vscode/
