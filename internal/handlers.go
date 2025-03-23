@@ -11,7 +11,7 @@ import (
 )
 
 var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
-	"add-to-watchlist": commands.AddToWathclist,
+	"add-to-watchlist": commands.AddToWatchlist,
 	"show-watchlist":   commands.ShowWatchlist,
 	"watched":          commands.Watched,
 	// "game-list": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
