@@ -2,6 +2,7 @@ package main
 
 import (
 	dsbot "dsbot/internal"
+	"dsbot/internal/activities"
 	"flag"
 	"os"
 	"os/signal"
@@ -24,6 +25,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	bot.Session.AddHandler(activities.OnStream)
 	err = bot.Start()
 	if err != nil {
 		panic(err)
