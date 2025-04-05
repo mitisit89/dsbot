@@ -1,6 +1,5 @@
 FROM golang:1.23-alpine AS builder
 LABEL stage=builder
-STOPSIGNAL SIGTERM
 WORKDIR /app
 COPY . .
 ENV CGO_ENABLED=0
@@ -14,4 +13,5 @@ FROM alpine:3.21.0  AS runner
 WORKDIR /opt
 COPY  --from=builder /opt/ .
 COPY .env .
+STOPSIGNAL SIGTERM
 CMD ["./dsbot"]
