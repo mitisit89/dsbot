@@ -9,7 +9,7 @@ ENV GOARCH=amd64
 COPY go.mod go.sum ./
 RUN go mod download
 RUN go build -ldflags="-s -w" -o /opt/dsbot /app/cmd/dsbot/main.go
-RUN apk --no-cache add upx && upx -q /opt/dsbot
+RUN apk --no-cache add upx && upx -qq /opt/dsbot
 FROM alpine:3.21.0  AS runner
 WORKDIR /opt
 COPY  --from=builder /opt/ .
