@@ -45,8 +45,9 @@ var Commands = []*discordgo.ApplicationCommand{
 		}},
 	{Name: "announce", Description: "Make announce ", Options: []*discordgo.ApplicationCommandOption{
 		{Type: discordgo.ApplicationCommandOptionString, Name: "time", Description: "Your local time:example 13:00", Required: true},
-		{Type: discordgo.ApplicationCommandOptionString, Name: "month-day", Description: "Your local day-month: example 12-01", Required: true},
+		{Type: discordgo.ApplicationCommandOptionString, Name: "timezone", Description: "Your timezone", Required: true},
+		{Type: discordgo.ApplicationCommandOptionString, Name: "day", Description: "Your current number day", Required: true},
 		{Type: discordgo.ApplicationCommandOptionString, Name: "description", Description: "Announce  description", Required: true},
-		{Type: discordgo.ApplicationCommandOptionString, Name: "link", Description: "Link to traller", Required: false},
+		// {Type: discordgo.ApplicationCommandOptionString, Name: "link", Description: "Link to traller", Required: false}, TODO: find out how to handle optional
 	}},
 }
