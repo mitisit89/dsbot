@@ -43,10 +43,10 @@ var Commands = []*discordgo.ApplicationCommand{
 				Required:    true,
 			},
 		}},
-	// {Name: "test-embed", Description: "test embed"},
-
-	//	{
-	//	        Name: "want-to-sleep",
-	//	        Description: "special command for streamer",
-	//	    }
+	{Name: "announce", Description: "Make announce ", Options: []*discordgo.ApplicationCommandOption{
+		{Type: discordgo.ApplicationCommandOptionString, Name: "time", Description: "Your local time:example 13:00", Required: true},
+		{Type: discordgo.ApplicationCommandOptionString, Name: "month-day", Description: "Your local day-month: example 12-01", Required: true},
+		{Type: discordgo.ApplicationCommandOptionString, Name: "description", Description: "Announce  description", Required: true},
+		{Type: discordgo.ApplicationCommandOptionString, Name: "link", Description: "Link to traller", Required: false},
+	}},
 }

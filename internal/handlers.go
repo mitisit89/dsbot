@@ -14,6 +14,7 @@ var CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.Interac
 	"add-to-watchlist": commands.AddToWatchlist,
 	"show-watchlist":   commands.ShowWatchlist,
 	"watched":          commands.Watched,
+	"announce":         commands.Anonce,
 	// "game-list": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	//
 	// 	c := storage.New()
