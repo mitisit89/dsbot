@@ -17,9 +17,13 @@ func Anonce(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	link := optsMap["link"].StringValue()
 	description := optsMap["description"].StringValue()
-	time := optsMap["time"].StringValue()
-	month_day := optsMap["month-day"].StringValue()
-	dst := utils.ToUnixDiscordTimestamp(time, month_day)
+	userTime := optsMap["time"].StringValue()
+	day := optsMap["day"].StringValue()
+	usertimeZone := optsMap["timezone"].StringValue()
+	dst, err := utils.ToUnixDiscordTimestamp(day, userTime, usertimeZone)
+	if err != nil {
+		slog.Error("failed to convert time", err)
+	}
 	embed := utils.NewEmbed().SetTitle("Announce").SetDescription(description).SetURL(link).AddField("Time", dst).MessageEmbed
 	msg, err := s.ChannelMessageSendEmbed(i.ChannelID, embed)
 	slog.Info("send message", "message", msg)
