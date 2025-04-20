@@ -8,14 +8,18 @@ import (
 )
 
 func Anonce(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	var link string
 	opts := i.ApplicationCommandData().Options
 	optsMap := make(map[string]*discordgo.ApplicationCommandInteractionDataOption, len(opts))
 	for _, opt := range opts {
 		optsMap[opt.Name] = opt
 
 	}
-
-	link := optsMap["link"].StringValue()
+	if optsMap["link"] == nil {
+		link = ""
+	} else {
+		link = optsMap["link"].StringValue()
+	}
 	description := optsMap["description"].StringValue()
 	userTime := optsMap["time"].StringValue()
 	day := optsMap["day"].StringValue()
