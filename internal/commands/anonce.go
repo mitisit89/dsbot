@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"dsbot/internal/dstz"
 	"dsbot/internal/utils"
 	"log/slog"
 
@@ -24,7 +25,7 @@ func Anonce(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	userTime := optsMap["time"].StringValue()
 	day := optsMap["day"].StringValue()
 	usertimeZone := optsMap["timezone"].StringValue()
-	dst, err := utils.ToUnixDiscordTimestamp(day, userTime, usertimeZone)
+	dst, err := dstz.ToUnixDiscordTimestamp(day, userTime, usertimeZone)
 	if err != nil {
 		slog.Error("failed to convert time", err)
 	}

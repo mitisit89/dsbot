@@ -564,6 +564,7 @@ func tzlist() *[553]string {
 	return &tzlist
 }
 
+// TODO: figure it out how make type resistant search
 func findTimeZone(tz string) (string, error) {
 	tzlist := tzlist()
 	for i := 0; i < len(*tzlist); i++ {
